@@ -1,38 +1,41 @@
-import React, { useEffect, useState } from 'react';
 import useSWR from 'swr';
-import Button from 'react-bootstrap/Button';
+import Error from 'next/error';
 import Card from 'react-bootstrap/Card';
 import Link from 'next/link';
-import Error from 'next/error';
+import Button from 'react-bootstrap/Button';
 
-export default function ArtworkCard({ objectID }) {
-    const { data, error } = useSWR(`https://collectionapi.metmuseum.org/public/collection/v1/objects/${objectID}`);
+export default function ArtworkCard(objectID){
+    objectID = objectID.objectID;
+    const {data, error} = useSWR(`https://collectionapi.metmuseum.org/public/collection/v1/objects/${objectID}`);
 
     if (error) {
-        return <Error statusCode={404} />;
-    } else {
-        if (!data || data.length === 0) {
-            return null;
-        }
-        else if (data.message === "Not a valid object") {
-            return null;
-        }
-        else {
-            return (
-                <Card>
-                    {data.primaryImageSmall ? <Card.Img className='card-image' variant="top" src={data.primaryImageSmall} /> 
-                    : <Card.Img className='card-image' variant="top" src="https://via.placeholder.com/375x375.png?text=[+Not+Available+]" /> }
-                    <Card.Body>
-                        {data.title ? <Card.Title className='card-title'>{data.title}</Card.Title> : <Card.Title className='card-title'>N/A</Card.Title> }
-                        <Card.Text>
-                            {data.objectDate ? <p className='card-date'>{data.objectDate}</p> : <p>N/A</p> }
-                            {data.classification ? <p>{data.classification}</p> : <p>N/A</p> }
-                            {data.medium ? <p>{data.medium}</p> : <p>N/A</p> }
-                        </Card.Text>
-                        <Link passHref legacyBehavior href={`/artwork/${objectID}`}><Button variant="dark">{ objectID }</Button></Link>
-                    </Card.Body>
-                </Card>
-            );
-        }
+        return (
+            <Error statusCode={404}/>
+        );
     }
+
+    if (!data || data == []){
+        return null;
+    }
+
+    return (
+        <Card className="bg-light">
+            <Card.Img variant="top" src={data.hasOwnProperty('primaryImageSmall') ? 
+                data.primaryImageSmall : "https://via.placeholder.com/375x375.png?text=[+Not+Available+]"}/>
+            <Card.Body>
+                <Card.Title>
+                    {data.hasOwnProperty('title') ? data.title : "N/A"}
+                </Card.Title>
+                <Card.Text>
+                    <strong>Date:</strong> {data.hasOwnProperty('objectDate') ? data.objectDate : "N/A"}
+                    <br/>
+                    <strong>Classification:</strong> {data.hasOwnProperty('classification') ? data.classification : "N/A"}
+                    <br />
+                    <strong>Medium:</strong> {data.hasOwnProperty('medium') ? data.medium : "N/A"}
+                </Card.Text>
+                <br/>
+                <Link href={`/artwork/${objectID}`} passHref><Button className="btn my-2 my-sm-0"><strong>ID:</strong> {objectID}</Button></Link>
+            </Card.Body>
+        </Card>
+    );
 }
