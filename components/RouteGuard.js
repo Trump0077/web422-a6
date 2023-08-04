@@ -1,6 +1,6 @@
+import React, { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/router';
-import { useState, useEffect } from "react";
 import { isAuthenticated } from "@/lib/authenticate";
 import { getFavourites, getHistory } from "@/lib/userData";
 import { favouritesAtom, searchHistoryAtom } from "@/store";
